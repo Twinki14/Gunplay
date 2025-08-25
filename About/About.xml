@@ -7,14 +7,13 @@
 	</supportedVersions>
 	<packageId>automatic.twinki.gunplay.forked</packageId>
 	<description><![CDATA[Adds more cinematic effects to ranged weapons:
-- long trails for projectiles
-- weapon animations for miniguns and bows
-- projectiles comes from thew barrel of the gun and not from inside of the colonist.
-- weapon movement animation for pawns missing their targets
-- different sounds for some weapons
-- visual effects for particle collision
-- faster projectile speed for all projectiles
-
-You can choose which changes you want in mod settings.
+- Trails for projectiles
+- Weapon Animations for miniguns and bows
+- Adjust projectile origin
+- New project hit sounds
+- Weapon movement animation for pawns missing their targets
+- Visual effects for particle collision
+- Faster projectile speed for all projectiles
+- Adjustable mod settings
 ]]></description>
 </ModMetaData>
