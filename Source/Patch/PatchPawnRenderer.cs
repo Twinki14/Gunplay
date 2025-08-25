@@ -1,39 +1,31 @@
 ﻿using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
 
 namespace Gunplay.Patch
 {
-
-    [HarmonyPatch(typeof(PawnRenderUtility), "DrawEquipmentAiming", new Type[] { typeof(Thing), typeof(Vector3), typeof(float) })]
-    class PatchPawnRenderUtilityDrawEquipmentAiming
+    [HarmonyPatch(typeof(PawnRenderUtility), "DrawEquipmentAiming", typeof(Thing), typeof(Vector3), typeof(float))]
+    public class PatchPawnRenderUtilityDrawEquipmentAiming
     {
-        static FieldInfo pawnField = typeof(PawnRenderer).GetField("pawn", BindingFlags.NonPublic | BindingFlags.Instance);
-        static Vector3 equipmentDir = new Vector3(0f, 0f, 0.4f);
-        static Vector3 drawingScale = new Vector3(1f, 1f, 1f);
-        static Matrix4x4 drawingMatrix = default;
+        private static readonly Vector3 EquipmentDir = new Vector3(0f, 0f, 0.4f);
+        private static Vector3 _drawingScale = new Vector3(1f, 1f, 1f);
+        private static Matrix4x4 _drawingMatrix;
 
-        static bool Prefix(ref Thing eq, ref Vector3 drawLoc, ref float aimAngle)
+        public static bool Prefix(ref Thing eq, ref Vector3 drawLoc, ref float aimAngle)
         {
-            if (!Gunplay.settings.enableWeaponAnimations) return true;
+            if (!Gunplay.settings.EnableWeaponAnimations) return true;
 
-            CompGun comp = eq.TryGetComp<CompGun>();
+            var comp = eq.TryGetComp<CompGun>();
             if (comp == null) return true;
 
-            drawLoc -= equipmentDir.RotatedBy(aimAngle);
+            drawLoc -= EquipmentDir.RotatedBy(aimAngle);
             aimAngle = (aimAngle + comp.RotationOffset) % 360;
-            drawLoc += equipmentDir.RotatedBy(aimAngle);
+            drawLoc += EquipmentDir.RotatedBy(aimAngle);
 
-            GunPropDef prop = GunplaySetup.GunProp(eq);
+            var prop = GunplaySetup.GunProp(eq);
             if (prop == null) return true;
 
-            float num = aimAngle - 90f;
+            var num = aimAngle - 90f;
             Mesh mesh;
             if (aimAngle > 20f && aimAngle < 160f)
             {
@@ -53,34 +45,27 @@ namespace Gunplay.Patch
             }
             num %= 360f;
 
-            drawingScale.x = drawingScale.z = prop.drawScale;
-            CompPrimer primer = eq.TryGetComp<CompPrimer>();
+            _drawingScale.x = _drawingScale.z = prop.drawScale;
+            var primer = eq.TryGetComp<CompPrimer>();
             if (primer != null)
             {
-                primer.Draw(mesh, drawLoc, num, drawingScale);
+                primer.Draw(mesh, drawLoc, num, _drawingScale);
                 return false;
             }
-            
-            if(prop.drawScale == 1f) return true;
 
-            Material mat;
-
-            Graphic_StackCount graphic_StackCount = eq.Graphic as Graphic_StackCount;
-            if (graphic_StackCount != null)
+            if (Mathf.Approximately(prop.drawScale, 1f))
             {
-                mat = graphic_StackCount.SubGraphicForStackCount(1, eq.def).MatSingle;
-            }
-            else
-            {
-                mat = eq.Graphic.MatSingle;
+                return true;
             }
 
-            drawingMatrix.SetTRS(drawLoc, Quaternion.AngleAxis(num, Vector3.up), drawingScale);
-            Graphics.DrawMesh(mesh, drawingMatrix, mat, 0);
+            var mat = eq.Graphic is Graphic_StackCount graphicStackCount
+                ? graphicStackCount.SubGraphicForStackCount(1, eq.def).MatSingle
+                : eq.Graphic.MatSingle;
+
+            _drawingMatrix.SetTRS(drawLoc, Quaternion.AngleAxis(num, Vector3.up), _drawingScale);
+            Graphics.DrawMesh(mesh, _drawingMatrix, mat, 0);
 
             return false;
         }
-
-
     }
 }

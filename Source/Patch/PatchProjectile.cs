@@ -6,13 +6,14 @@ using Verse.Sound;
 
 namespace Gunplay.Patch
 {
-
     [HarmonyPatch(typeof(Projectile), "Launch", typeof(Thing), typeof(Vector3), typeof(LocalTargetInfo), typeof(LocalTargetInfo), typeof(ProjectileHitFlags), typeof(bool), typeof(Thing), typeof(ThingDef))]
     public class PatchProjectileLaunch
     {
-        static PropertyInfo StartingTicksToImpactProp = typeof(Projectile).GetProperty("StartingTicksToImpact", BindingFlags.NonPublic | BindingFlags.Instance);
+        static PropertyInfo StartingTicksToImpactProp =
+            typeof(Projectile).GetProperty("StartingTicksToImpact", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public static void Postfix(Projectile __instance, Vector3 ___destination, Thing launcher, ref Vector3 ___origin, LocalTargetInfo intendedTarget, Thing equipment, ref int ___ticksToImpact)
+        public static void Postfix(Projectile __instance, Vector3 ___destination, Thing launcher, ref Vector3 ___origin,
+            LocalTargetInfo intendedTarget, Thing equipment, ref int ___ticksToImpact)
         {
             var prop = GunplaySetup.GunProp(equipment);
             if (prop is null)
@@ -24,9 +25,11 @@ namespace Gunplay.Patch
             if (comp != null)
             {
                 var angle = (___destination - ___origin).AngleFlat() - (intendedTarget.CenterVector3 - ___origin).AngleFlat();
-                if (angle < -180) {
+                if (angle < -180)
+                {
                     angle += 360;
                 }
+
                 comp.RotationOffset = (angle + 180) % 360 - 180;
             }
 
@@ -47,7 +50,7 @@ namespace Gunplay.Patch
                 }
             }
 
-            if (!Gunplay.settings.enableTrails || launcher?.Map == null)
+            if (!Gunplay.settings.EnableTrails || launcher?.Map == null)
             {
                 return;
             }
@@ -67,7 +70,7 @@ namespace Gunplay.Patch
             var prop = GunplaySetup.GunProp(__instance.EquipmentDef);
             if (prop == null || prop.preserveSpeed) return value;
 
-            return value / Gunplay.settings.projectileSpeed;
+            return value / Gunplay.settings.ProjectileSpeed;
         }
     }
 
@@ -89,18 +92,20 @@ namespace Gunplay.Patch
                 kind = MaterialKindGetter.Get(hitThing);
             }
 
-            if(kind == MaterialKind.None)
+            if (kind == MaterialKind.None)
             {
-                var terrainDef = map.terrainGrid.TerrainAt(CellIndicesUtility.CellToIndex(__instance.Position, map.Size.x));
+                var terrainDef =
+                    map.terrainGrid.TerrainAt(CellIndicesUtility.CellToIndex(__instance.Position, map.Size.x));
                 kind = MaterialKindGetter.Get(terrainDef);
             }
 
-            if (Gunplay.settings.enableSounds) {
-                var sound = prop.projectileImpactSound == null ? null : prop.projectileImpactSound.Effect(kind);
-                if (sound != null) sound.PlayOneShot(new TargetInfo(__instance.Position, map, false));
+            if (Gunplay.settings.EnableSounds)
+            {
+                var sound = prop.projectileImpactSound?.Effect(kind);
+                sound?.PlayOneShot(new TargetInfo(__instance.Position, map, false));
             }
 
-            if (Gunplay.settings.enableEffects)
+            if (Gunplay.settings.EnableEffects)
             {
                 var effecterDef = prop.projectileImpactEffect?.Effect(kind);
                 if (effecterDef != null)
@@ -112,6 +117,4 @@ namespace Gunplay.Patch
             }
         }
     }
-
-
 }

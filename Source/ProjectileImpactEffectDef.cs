@@ -14,7 +14,7 @@ namespace Gunplay
 
         public EffecterDef Effect(MaterialKind kind)
         {
-            EffecterDef res = null;
+            EffecterDef res;
 
             switch (kind)
             {
@@ -25,11 +25,10 @@ namespace Gunplay
                 case MaterialKind.Soil: res = soil; break;
                 case MaterialKind.Stone: res = stone; break;
                 case MaterialKind.Wood: res = wood; break;
+                default: res = null; break;
             }
 
-            if (res == null) res = fallback;
-
-            return res;
+            return res ?? fallback;
         }
     }
 }

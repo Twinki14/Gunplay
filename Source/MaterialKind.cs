@@ -1,9 +1,6 @@
 ﻿using RimWorld;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Verse;
 
 namespace Gunplay
@@ -25,16 +22,20 @@ namespace Gunplay
 
         static MaterialKindGetter()
         {
-            foreach (ThingDef thingDef in from def in DefDatabase<ThingDef>.AllDefs where def.building != null select def)
+            foreach (var thingDef in from def in DefDatabase<ThingDef>.AllDefs where def.building != null select def)
             {
-                MaterialKind kind = Get(thingDef);
-                if (kind == MaterialKind.None) continue;
+                var kind = Get(thingDef);
+                if (kind == MaterialKind.None)
+                {
+                    continue;
+                }
 
                 if (thingDef.building.naturalTerrain != null)
                 {
                     map[thingDef.building.naturalTerrain] = kind;
                     if (thingDef.building.naturalTerrain.smoothedTerrain != null) map[thingDef.building.naturalTerrain.smoothedTerrain] = kind;
                 }
+
                 if (thingDef.building.leaveTerrain != null)
                 {
                     map[thingDef.building.leaveTerrain] = kind;
@@ -44,20 +45,20 @@ namespace Gunplay
         }
 
 
-        static MaterialKind Get(List<ThingDefCountClass> list)
+        private static MaterialKind Get(List<ThingDefCountClass> list)
         {
             if (list == null) return MaterialKind.None;
 
-            foreach (ThingDefCountClass td in list)
+            foreach (var td in list)
             {
-                MaterialKind kind = Get(td.thingDef);
+                var kind = Get(td.thingDef);
                 if (kind != MaterialKind.None) return kind;
             }
 
             return MaterialKind.None;
         }
 
-        static MaterialKind GetWithoutCache(ThingDef def)
+        private static MaterialKind GetWithoutCache(ThingDef def)
         {
             MaterialKind kind;
 
@@ -68,7 +69,7 @@ namespace Gunplay
 
             if (def.stuffProps != null && def.stuffProps.categories != null && def.stuffProps.categories.Count > 0)
             {
-                StuffCategoryDef cat = def.stuffProps.categories[0];
+                var cat = def.stuffProps.categories[0];
                 if (cat == StuffCategoryDefOf.Metallic) return MaterialKind.Metal;
                 if (cat == StuffCategoryDefOf.Fabric) return MaterialKind.Fabric;
                 if (cat == StuffCategoryDefOf.Leathery) return MaterialKind.Fabric;
@@ -89,7 +90,7 @@ namespace Gunplay
             return MaterialKind.None;
         }
 
-        static MaterialKind GetWithoutCache(BuildableDef def)
+        private static MaterialKind GetWithoutCache(BuildableDef def)
         {
             MaterialKind kind;
 
@@ -103,7 +104,7 @@ namespace Gunplay
 
         public static MaterialKind Get(Thing thing)
         {
-            MaterialKind kind = Get(thing.Stuff);
+            var kind = Get(thing.Stuff);
             if (kind != MaterialKind.None) return kind;
 
             return Get(thing.def);
@@ -111,22 +112,26 @@ namespace Gunplay
 
         public static MaterialKind Get(Def def)
         {
-            if (def == null) return MaterialKind.None;
+            if (def == null)
+            {
+                return MaterialKind.None;
+            }
 
-            MaterialKind kind;
-            if (map.TryGetValue(def, out kind)) return kind;
+            if (map.TryGetValue(def, out var kind))
+            {
+                return kind;
+            }
 
             map[def] = MaterialKind.None;
 
-            ThingDef thingDef = def as ThingDef;
-            if (thingDef != null)
+            switch (def)
             {
-                kind = GetWithoutCache(thingDef);
-            }
-            else
-            {
-                BuildableDef buildableDef = def as BuildableDef;
-                if (buildableDef != null) kind = GetWithoutCache(buildableDef);
+                case ThingDef thingDef:
+                    kind = GetWithoutCache(thingDef);
+                    break;
+                case BuildableDef buildableDef:
+                    kind = GetWithoutCache(buildableDef);
+                    break;
             }
 
             map[def] = kind;

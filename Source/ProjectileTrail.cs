@@ -18,7 +18,7 @@ namespace Gunplay
         private float _length;
         private float _width;
 
-        public void Initialize(Projectile proj, Vector3 destination, Thing equipment)
+        public void Initialize(Projectile proj, Vector3 destination)
         {
             _ticksUtilDeath = -1;
             _ticksIdle = 0;

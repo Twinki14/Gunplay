@@ -24,7 +24,7 @@ namespace Gunplay
         float targetPosition;
         float speed = 0;
         int movementTicksRemaing = 0;
-    
+
         public virtual int TicksToIdle => 30;
 
         public void ReachPosition(float target, int ticksUntil)
@@ -52,7 +52,7 @@ namespace Gunplay
             var holder = ParentHolder as Pawn_EquipmentTracker;
             if (holder == null) return;
 
-            Stance stance = holder.pawn.stances.curStance;
+            var stance = holder.pawn.stances.curStance;
             Stance_Warmup warmup;
 
             switch (state)
@@ -84,7 +84,7 @@ namespace Gunplay
                     if (!IsBrusting(holder.pawn))
                     {
                         state = State.Idle;
-                        Stance_Cooldown cooldown = stance as Stance_Cooldown;
+                        var cooldown = stance as Stance_Cooldown;
                         if (cooldown != null)
                             ReachPosition(0.0f, TicksToIdle);
                         else

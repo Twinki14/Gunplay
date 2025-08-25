@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using Verse;
@@ -19,14 +17,14 @@ namespace Gunplay
             var harmony = new Harmony("com.github.automatic1111.gunplay");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-            foreach (ProjectileTrailDef def in DefDatabase<ProjectileTrailDef>.AllDefs)
+            foreach (var def in DefDatabase<ProjectileTrailDef>.AllDefs)
             {
                 if (!def.DrawMatSingle || !def.DrawMatSingle.mainTexture) continue;
 
                 def.DrawMatSingle.mainTexture.wrapMode = TextureWrapMode.Clamp;
             }
 
-            foreach (GunPropDef def in DefDatabase<GunPropDef>.AllDefs)
+            foreach (var def in DefDatabase<GunPropDef>.AllDefs)
             {
                 ThingDef target = null;
 
@@ -37,22 +35,22 @@ namespace Gunplay
                 if (def.trail == null) def.trail = defaultDef.trail;
                 if (def.barrelLength == -1) def.barrelLength = defaultDef.barrelLength;
 
-                if (Gunplay.settings.enableSounds)
+                if (Gunplay.settings.EnableSounds)
                 {
                     if (def.projectileImpactSound == null) def.projectileImpactSound = defaultDef.projectileImpactSound;
                     if (def.projectileImpactEffect == null) def.projectileImpactEffect = defaultDef.projectileImpactEffect;
                 }
             }
 
-            foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
+            foreach (var def in DefDatabase<ThingDef>.AllDefs)
             {
-                VerbProperties shoot = def.Verbs.FirstOrDefault(v => typeof(Verb_Shoot).IsAssignableFrom(v.verbClass));
+                var shoot = def.Verbs.FirstOrDefault(v => typeof(Verb_Shoot).IsAssignableFrom(v.verbClass));
                 if (shoot == null) continue;
-                if (!propMap.ContainsKey(def)) propMap[def] = defaultDef;
+                propMap.TryAdd(def, defaultDef);
 
                 def.comps.Add(new CompProperties() { compClass = typeof(CompGun) });
 
-                GunPropDef prop = propMap.TryGetValue(def);
+                var prop = propMap.TryGetValue(def);
                 if (prop != null)
                 {
                     if (prop.soundAiming != null) shoot.soundAiming = prop.soundAiming;
@@ -64,18 +62,8 @@ namespace Gunplay
             }
         }
 
-        public static GunPropDef GunProp(ThingDef equipment)
-        {
-            if (equipment == null) return null;
+        public static GunPropDef GunProp(ThingDef equipment) => equipment == null ? null : propMap.TryGetValue(equipment, null);
 
-            return propMap.TryGetValue(equipment, null);
-        }
-
-        public static GunPropDef GunProp(Thing equipment)
-        {
-            if (equipment?.def == null) return null;
-
-            return propMap.TryGetValue(equipment.def, defaultDef);
-        }
+        public static GunPropDef GunProp(Thing equipment) => equipment?.def == null ? null : propMap.TryGetValue(equipment.def, defaultDef);
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Verse;
+﻿using Verse;
 
 namespace Gunplay
 {
@@ -17,8 +12,9 @@ namespace Gunplay
         public SoundDef stone;
         public SoundDef wood;
 
-        public SoundDef Effect(MaterialKind kind) {
-            SoundDef res = null;
+        public SoundDef Effect(MaterialKind kind)
+        {
+            SoundDef res;
 
             switch (kind)
             {
@@ -29,11 +25,10 @@ namespace Gunplay
                 case MaterialKind.Soil: res = soil; break;
                 case MaterialKind.Stone: res = stone; break;
                 case MaterialKind.Wood: res = wood; break;
+                default: res = null; break;
             }
 
-            if (res == null) res = fallback;
-
-            return res;
+            return res ?? fallback;
         }
     }
 }

@@ -1,52 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Verse;
+﻿using Verse;
 
 namespace Gunplay
 {
-    class CompGun : ThingComp
+    public class CompGun : ThingComp
     {
-        float rotationSpeed = 0;
-        float rotationOffset = 0;
-        int ticksPreviously = 0;
+        private float _rotationSpeed;
+        private float _rotationOffset;
+        private int _ticksPreviously;
 
-        void UpdateRotationOffset(int ticks)
+        private void UpdateRotationOffset(int ticks)
         {
-            if (rotationOffset == 0) return;
+            if (_rotationOffset == 0) return;
             if (ticks <= 0) return;
             if (ticks > 30) ticks = 30;
 
-            if (rotationOffset > 0)
+            if (_rotationOffset > 0)
             {
-                rotationOffset -= rotationSpeed;
-                if (rotationOffset < 0) rotationOffset = 0;
+                _rotationOffset -= _rotationSpeed;
+                if (_rotationOffset < 0) _rotationOffset = 0;
             }
-            else if (rotationOffset < 0)
+            else if (_rotationOffset < 0)
             {
-                rotationOffset += rotationSpeed;
-                if (rotationOffset > 0) rotationOffset = 0;
+                _rotationOffset += _rotationSpeed;
+                if (_rotationOffset > 0) _rotationOffset = 0;
             }
 
-            rotationSpeed += ticks * 0.01f;
+            _rotationSpeed += ticks * 0.01f;
         }
 
         public float RotationOffset
         {
             get
             {
-                int ticks = Find.TickManager.TicksGame;
-                UpdateRotationOffset(ticks - ticksPreviously);
-                ticksPreviously = ticks;
+                var ticks = Find.TickManager.TicksGame;
+                UpdateRotationOffset(ticks - _ticksPreviously);
+                _ticksPreviously = ticks;
 
-                return rotationOffset;
+                return _rotationOffset;
             }
             set
             {
-                rotationOffset = value;
-                rotationSpeed = 0;
+                _rotationOffset = value;
+                _rotationSpeed = 0;
             }
         }
     }

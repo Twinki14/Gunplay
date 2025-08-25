@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
 
 namespace Gunplay
@@ -12,9 +7,9 @@ namespace Gunplay
     {
         public static void SliderLabeled(this Listing_Standard listing, string label, ref float val, string tooltip, float min, float max, string format)
         {
-            Rect rect = listing.GetRect(Text.LineHeight);
+            var rect = listing.GetRect(Text.LineHeight);
 
-            TextAnchor anchor = Text.Anchor;
+            var anchor = Text.Anchor;
             Text.Anchor = TextAnchor.MiddleLeft;
             Widgets.Label(rect.LeftPart(0.5f), label);
             val = Widgets.HorizontalSlider(rect.RightPart(0.5f).LeftPart(0.8f), val, min, max, true);
@@ -26,5 +21,4 @@ namespace Gunplay
             listing.Gap(listing.verticalSpacing);
         }
     }
-
 }
