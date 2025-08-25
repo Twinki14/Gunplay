@@ -67,7 +67,7 @@ namespace Gunplay
 
         float TicksPerLength => length / speed;
 
-        public override void Tick()
+        protected override void Tick()
         {
             base.Tick();
 
